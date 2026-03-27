@@ -1,0 +1,40 @@
+<configuration debug="true">
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>D:/logs/task-tracker.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%level] %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%level] %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="KAFKA" class="com.github.danielwegener.logback.kafka.KafkaAppender">
+        <topic>logs-ingestion</topic>
+        <producerConfig>bootstrap.servers=localhost:9092</producerConfig>
+        <producerConfig>acks=all</producerConfig>
+        <producerConfig>key.serializer=org.apache.kafka.common.serialization.StringSerializer</producerConfig>
+        <producerConfig>value.serializer=org.apache.kafka.common.serialization.StringSerializer</producerConfig>
+        <encoder>
+            <pattern>{"service":"task-service","level":"%level","message":"%msg"}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC_KAFKA" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="KAFKA"/>
+    </appender>
+
+    <logger name="com.kovanlabs.tasktracker" level="DEBUG"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ASYNC_KAFKA"/>
+    </root>
+
+</configuration>
